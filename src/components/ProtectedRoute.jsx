@@ -1,0 +1,28 @@
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const ProtectedRoute = ({ children, allowedRoles }) => {
+  const { user, isAuthenticated, loading, getDashboardPath } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="spinner spinner-primary" style={{ width: 40, height: 40 }}></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    // User does not have appropriate role, redirect to their role dashboard
+    return <Navigate to={getDashboardPath(user.role)} replace />;
+  }
+
+  return children;
+};
+
+export default ProtectedRoute;
